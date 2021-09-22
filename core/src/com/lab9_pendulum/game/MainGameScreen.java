@@ -24,6 +24,7 @@ public class MainGameScreen implements Screen {
     private Body rect;                 // тело прямоугольника
     private Body circle;               // тело окружности
 
+    /*
     private int Nblock;
     private float Nf;
     private int flag;
@@ -31,6 +32,7 @@ public class MainGameScreen implements Screen {
     public MainGameScreen() {
         flag=1;
     }
+     */
 
     @Override
     public void show() {
@@ -50,42 +52,32 @@ public class MainGameScreen implements Screen {
         rend = new Box2DDebugRenderer();
 
         // Создаем первый маятник
-        circle = createCircle1(BodyDef.BodyType.DynamicBody, new Vector2(9,5), 0.8f);
-        rect = createRect1(BodyDef.BodyType.KinematicBody, new Vector2(9, 12), new Vector2(1f,0.3f));
+        circle = createCircle(BodyDef.BodyType.DynamicBody, new Vector2(9,5), 0.8f);
+        rect = createRect(BodyDef.BodyType.KinematicBody, new Vector2(9, 12), new Vector2(1f,0.3f));
         createJoint(circle, rect);
 
         // Создаем второй маятник
-        circle = createCircle1(BodyDef.BodyType.DynamicBody, new Vector2(20,5), 0.8f);
-        rect = createRect1(BodyDef.BodyType.KinematicBody, new Vector2(11, 12), new Vector2(1f,0.3f));
+        circle = createCircle(BodyDef.BodyType.DynamicBody, new Vector2(25,5), 0.8f);
+        rect = createRect(BodyDef.BodyType.KinematicBody, new Vector2(11, 12), new Vector2(1f,0.3f));
         createJoint(circle, rect);
 
         // Вызвыть процедуру создания контуров внешних стен
         // createWall();
     }
 
-    private Joint createJoint(Body circle, Body rect){
-        RevoluteJointDef jDef = new RevoluteJointDef();
-        jDef.bodyA = circle;
-        jDef.bodyB = rect;
-        jDef.collideConnected = true;
-        jDef.localAnchorA.set(0, 7);
-        return world.createJoint(jDef);
-    }
-
     @Override
-
     public void render(float delta) {
+
         // Очистка экрана
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // Собственно отрисовка
+        // Отрисовка
         rend.render(world, camera.combined); // закомменировать после отладки
 
         // Выполнение расчета нового состояния Мира
         world.step(1 / 60f, 4, 4);
 
-
-/*
+        /*
         if (Nblock < 100)
         {
             Nf += delta;
@@ -98,10 +90,7 @@ public class MainGameScreen implements Screen {
                 Nf = 0;
             }
         }
-
-
- */
-
+        */
 
 
     }
@@ -138,38 +127,18 @@ public class MainGameScreen implements Screen {
 
     }
 
-    // Процедура создания тела прямоугольника
-    private void createRect(){
-
-        // Структура геометрических свойств тела
-        BodyDef bDef= new BodyDef();
-
-        // задать телу тип динамического тела (на него действует гравитация)
-        bDef.type= BodyDef.BodyType.DynamicBody;
-
-        // задать позицию тела в Мире – в метрах X и Y
-        // bDef.position.set(10,13);
-        bDef.position.set((int)(Math.random()*10f+2f), 14);
-
-        // создание тела в Мире
-        rect=world.createBody(bDef);
-
-        // Создать эскиз контура тела в виде приямоугольника 2х2 метра
-        PolygonShape shape = new PolygonShape();
-        // shape.setAsBox(2,2);
-        shape.setAsBox((float)(Math.random()+0.1f),(float)(Math.random()+0.1f));
-
-        // Структура физических свойств тела
-        FixtureDef fDef=new FixtureDef();
-        fDef.shape=shape;         // назначить вид контура тела
-        fDef.density=2;           // назначить плотность тела г/см3
-        fDef.restitution=0.7f;    // назначить упругость
-        fDef.friction=0.1f;       // назначить коэф-т трения
-        rect.createFixture(fDef); // закрепить свойства за телом
+    // Функция создания крепления между объектами
+    private Joint createJoint(Body circle, Body rect){
+        RevoluteJointDef jDef = new RevoluteJointDef();
+        jDef.bodyA = circle;
+        jDef.bodyB = rect;
+        jDef.collideConnected = true;
+        jDef.localAnchorA.set(0, 7); // длина
+        return world.createJoint(jDef);
     }
 
-    //функция создания тела прямоугольника
-    private Body createRect1(BodyDef.BodyType type, Vector2 position, Vector2 size) {
+    // Функция создания тела прямоугольника
+    private Body createRect(BodyDef.BodyType type, Vector2 position, Vector2 size) {
 
         // Структура геометрических свойств тела
         BodyDef bDef = new BodyDef();
@@ -183,7 +152,7 @@ public class MainGameScreen implements Screen {
         // Создание тела в Мире
         rect = world.createBody(bDef);
 
-        // Создать эскиз контура тела в виде приямоугольника
+        // Создать эскиз контура тела в виде прямоугольника
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(size.x, size.y);
 
@@ -199,7 +168,7 @@ public class MainGameScreen implements Screen {
     }
 
     // Процедура создания тела окружности
-    private Body createCircle1(BodyDef.BodyType type, Vector2 position, float radius) {
+    private Body createCircle(BodyDef.BodyType type, Vector2 position, float radius) {
 
         // Структура геометрических свойств тела
         BodyDef bDef = new BodyDef();
@@ -228,10 +197,38 @@ public class MainGameScreen implements Screen {
         return circle;
     }
 
+    // Процедура создания тела прямоугольника (старая)
+    private void createRectangle1(){
 
+        // Структура геометрических свойств тела
+        BodyDef bDef= new BodyDef();
 
-    // Процедура создания тела окружности
-    private void createCircle(){
+        // задать телу тип динамического тела (на него действует гравитация)
+        bDef.type= BodyDef.BodyType.DynamicBody;
+
+        // задать позицию тела в Мире – в метрах X и Y
+        // bDef.position.set(10,13);
+        bDef.position.set((int)(Math.random()*10f+2f), 14);
+
+        // создание тела в Мире
+        rect=world.createBody(bDef);
+
+        // Создать эскиз контура тела в виде прямоугольника
+        PolygonShape shape = new PolygonShape();
+        // shape.setAsBox(2,2);
+        shape.setAsBox((float)(Math.random()+0.1f),(float)(Math.random()+0.1f));
+
+        // Структура физических свойств тела
+        FixtureDef fDef=new FixtureDef();
+        fDef.shape=shape;         // назначить вид контура тела
+        fDef.density=2;           // назначить плотность тела г/см3
+        fDef.restitution=0.7f;    // назначить упругость
+        fDef.friction=0.1f;       // назначить коэф-т трения
+        rect.createFixture(fDef); // закрепить свойства за телом
+    }
+
+    // Процедура создания тела окружности (старая)
+    private void createCircle1(){
         // Структура геометрических свойств тела
         BodyDef bDef= new BodyDef();
 
